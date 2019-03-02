@@ -1,17 +1,32 @@
 module Main where
 
-import Network.Socket
+import qualified Network.Socket as Socket
+import qualified Network.Socket.ByteString as SBS
+
+import Data.ByteString(ByteString)
+
+import Control.Monad(forever)
+
+import Control.Concurrent(forkIO)
+
+import qualified Network.DNS.Decode as DNSDecode
 
 main :: IO ()
-main = withSocketsDo $ do
-         (server:_) <- getAddrInfo Nothing (Just "localhost") (Just "3000")
-         s <- socket (addrFamily server) Datagram defaultProtocol
-         bindSocket s (addrAddress server) >> return s
+main = Socket.withSocketsDo $ do
+         (server:_) <- Socket.getAddrInfo Nothing (Just "localhost") (Just "53")
+         sock <- Socket.socket (Socket.addrFamily server) Socket.Datagram Socket.defaultProtocol
+         Socket.bind sock (Socket.addrAddress server) >> return sock
          putStrLn "Server started ..."
-         handleConnections s
+         dnsLoop sock
 
-handleConnections :: Socket -> IO ()
-handleConnections conn = do
-  (text, _, _) <- recvFrom conn 1024
-  putStrLn text
-  handleConnections conn
+-- | Receive UDP packets and fork a new process to respond to DNS query
+dnsLoop :: Socket.Socket -> IO ()
+dnsLoop sock = forever $ do
+  packet <- SBS.recvFrom sock 65535
+  _ <- forkIO $ dnsHandler sock packet
+  return ()
+
+dnsHandler :: Socket.Socket -> (ByteString, Socket.SockAddr) -> IO ()
+dnsHandler socket packet = do
+  let (bs, from) = packet
+  print $ DNSDecode.decode bs
