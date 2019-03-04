@@ -7,13 +7,14 @@ module Network.HDNS.Server
 
 import Control.Concurrent (forkFinally)
 import Control.Monad(forever, when)
-import Control.Concurrent(forkIO)
+import Control.Concurrent(forkIO, killThread, myThreadId)
 
 import Network.Socket.ByteString
 
 import Network.Socket hiding (recvFrom)
 
 import qualified Network.DNS.Decode as Decode
+import qualified Data.ByteString as BS
 
 resolveAddr :: Int -> IO AddrInfo
 resolveAddr port = do
@@ -46,6 +47,11 @@ start = withSocketsDo $ do
             return ()
 
 -- | Handling incoming DNS message requests
+dnsHandler :: Socket -> BS.ByteString -> IO ()
 dnsHandler sock packet = do
     let dnsMsg = Decode.decode packet
-    print . show $ dnsMsg
+    case dnsMsg of
+        Left e -> print "Error parsing DNS message" >> abort
+        Right m -> print . show $ m
+    where
+        abort = myThreadId >>= killThread
