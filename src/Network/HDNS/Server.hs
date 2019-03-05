@@ -13,8 +13,7 @@ import Network.Socket.ByteString
 
 import Network.Socket hiding (recvFrom)
 
-import qualified Network.DNS.Decode as Decode
-import qualified Network.DNS.Resolver as Resolver
+import qualified Network.DNS as DNS
 import qualified Data.ByteString as BS
 
 resolveAddr :: Int -> IO AddrInfo
@@ -43,16 +42,25 @@ start = withSocketsDo $ do
             dnsLoop sock
         dnsLoop :: Socket -> IO ()
         dnsLoop sock = forever $ do
-            (packet, _) <- recvFrom sock 65535
-            forkIO $ dnsHandler sock packet
+            (msg, addr) <- recvFrom sock 65535
+            forkIO $ dnsHandler sock msg addr
             return ()
 
 -- | Handling incoming DNS message requests
-dnsHandler :: Socket -> BS.ByteString -> IO ()
-dnsHandler sock packet = do
-    let dnsMsg = Decode.decode packet
+--
+dnsHandler :: Socket -> BS.ByteString -> SockAddr -> IO ()
+dnsHandler sock packet addr = do
+    let dnsMsg = DNS.decode packet
     case dnsMsg of
         Left e -> print "Error parsing DNS message" >> abort
-        Right m -> print . show $ m
+        Right m -> do
+          let response = DNS.encode (handleMessage m)
+          sendAllTo sock response addr
     where
         abort = myThreadId >>= killThread
+
+-- | A handler that accepts a DNS message, does work and returns the response
+--   to return.
+--
+handleMessage :: DNS.DNSMessage -> DNS.DNSMessage
+handleMessage m = m
