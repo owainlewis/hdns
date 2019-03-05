@@ -24,6 +24,7 @@ dependencies:
 - network
 - dns
 - bytestring
+- iproute
 
 library:
   source-dirs: src

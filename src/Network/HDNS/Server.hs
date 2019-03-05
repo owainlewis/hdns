@@ -14,6 +14,7 @@ import Network.Socket.ByteString
 import Network.Socket hiding (recvFrom)
 
 import qualified Network.DNS.Decode as Decode
+import qualified Network.DNS.Resolver as Resolver
 import qualified Data.ByteString as BS
 
 resolveAddr :: Int -> IO AddrInfo
