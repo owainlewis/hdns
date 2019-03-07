@@ -54,7 +54,8 @@ dnsHandler sock packet addr = do
     case dnsMsg of
         Left e -> print "Error parsing DNS message" >> abort
         Right m -> do
-          let response = DNS.encode (handleMessage m)
+          result <- handleMessage m
+          let response = DNS.encode result
           sendAllTo sock response addr
     where
         abort = myThreadId >>= killThread
@@ -62,5 +63,5 @@ dnsHandler sock packet addr = do
 -- | A handler that accepts a DNS message, does work and returns the response
 --   to return.
 --
-handleMessage :: DNS.DNSMessage -> DNS.DNSMessage
-handleMessage m = m
+handleMessage :: Monad m => DNS.DNSMessage -> m DNS.DNSMessage
+handleMessage m = return m
