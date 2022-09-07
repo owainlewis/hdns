@@ -27,8 +27,7 @@ resolveAddr port = do
     (addr :_) <- getAddrInfo (Just hints) Nothing (Just . show $ port)
     return addr
 
--- | Start the DNS server by binding to a network socket and forking each request
---   to a specific DNS handler
+-- Start the DNS server by binding to a network socket and forking each request to a specific DNS handler
 start :: IO ()
 start = withSocketsDo $ do
     addr <- resolveAddr 53
@@ -46,8 +45,7 @@ start = withSocketsDo $ do
             forkIO $ dnsHandler sock msg addr
             return ()
 
--- | Handling incoming DNS message requests
---
+-- Handling incoming DNS message requests
 dnsHandler :: Socket -> BS.ByteString -> SockAddr -> IO ()
 dnsHandler sock packet addr = do
     let dnsMsg = DNS.decode packet
@@ -60,8 +58,6 @@ dnsHandler sock packet addr = do
     where
         abort = myThreadId >>= killThread
 
--- | A handler that accepts a DNS message, does work and returns the response
---   to return.
---
+-- A handler that accepts a DNS message, does work and returns the response to return.
 handleMessage :: Monad m => DNS.DNSMessage -> m DNS.DNSMessage
 handleMessage m = return m
