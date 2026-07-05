@@ -1,0 +1,70 @@
+cabal-version: 2.4
+
+name: hdns
+version: 0.1.0.0
+synopsis: Small configurable DNS server in Haskell
+description:
+  Please see the README on GitHub at <https://github.com/owainlewis/hdns#readme>
+homepage: https://github.com/owainlewis/hdns#readme
+bug-reports: https://github.com/owainlewis/hdns/issues
+license: BSD-3-Clause
+license-file: LICENSE
+author: Owain Lewis
+maintainer: owain@owainlewis.com
+copyright: 2019 Owain Lewis
+category: Network
+build-type: Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+common warnings
+  ghc-options: -Wall
+
+library
+  import: warnings
+  exposed-modules:
+      HDNS
+      Network.HDNS.Config
+      Network.HDNS.Handler
+      Network.HDNS.Server
+  hs-source-dirs: src
+  build-depends:
+      base >= 4.14 && < 5
+    , bytestring
+    , containers
+    , dns >= 4.2
+    , iproute
+    , network
+    , unix
+  default-language: Haskell2010
+
+executable hdns-exe
+  import: warnings
+  main-is: Main.hs
+  hs-source-dirs: app
+  ghc-options:
+      -threaded
+      -rtsopts
+      -with-rtsopts=-N
+  build-depends:
+      base >= 4.14 && < 5
+    , hdns
+  default-language: Haskell2010
+
+test-suite hdns-test
+  import: warnings
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs: test
+  ghc-options:
+      -threaded
+      -rtsopts
+      -with-rtsopts=-N
+  build-depends:
+      base >= 4.14 && < 5
+    , bytestring
+    , dns >= 4.2
+    , hspec
+    , hdns
+  default-language: Haskell2010

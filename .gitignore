@@ -1,4 +1,4 @@
 .stack-work/
-hdns.cabal
+dist-newstyle/
 *~.idea
 .idea
