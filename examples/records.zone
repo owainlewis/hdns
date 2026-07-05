@@ -1,0 +1,5 @@
+# name ttl type value
+example.test. 60 A 192.0.2.10
+example.test. 60 AAAA 2001:db8::10
+alias.example.test. 60 CNAME example.test.
+text.example.test. 60 TXT "hello from hdns"

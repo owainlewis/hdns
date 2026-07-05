@@ -20,14 +20,18 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/owainlewis/hdns#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+- base >= 4.14 && < 5
 - network
-- dns
+- dns >= 4.2
 - bytestring
+- containers
 - iproute
+- unix
 
 library:
   source-dirs: src
+  ghc-options:
+  - -Wall
 
 executables:
   hdns-exe:
@@ -50,3 +54,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - hdns
+    - hspec

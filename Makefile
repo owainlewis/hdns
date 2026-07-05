@@ -1,7 +1,11 @@
 .PHONY: build
 build:
-	stack build
+	cabal build all
 
 .PHONY: run
 run: build
-	sudo ./.stack-work/dist/x86_64-osx/Cabal-2.4.0.1/build/hdns-exe/hdns-exe
+	cabal run hdns-exe -- --port 1053 --records examples/records.zone
+
+.PHONY: test
+test:
+	cabal test all
